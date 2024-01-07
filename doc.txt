@@ -1,0 +1,66 @@
+TanStack Query (conhecido como react Query)
+
+-APP
+-TanStackQuery (ajuda no fetching, ajuda no cache, sincroniza e atualiza dados de state da aplicacao)
+-REQUISICAO (fetch / axios)
+
+
+PRA QUE UM INTERMEDIARIO COMO O TANSTACK ???
+
+ex:
+pegamos dados do usuario, fomos para uma outra tela da aplicacao e depois voltamos para tela onde lista os usuarios
+so que como aquela requisicao de pegar os usuarios esta com o  cache, automaticamente nao vai haver requisicao, pois a requisicao ja estava no cache.
+EX: tem como configurar se quer fazer requisicao novamente ou nao....
+
+
+Para utilizar:
+
+ 1- Envolver primeiro em um provider, envolver toda tanstack na aplicacao. (igual como fazemos con useContext)
+ 2- Instalar TANSTACKQUERYDEVTOOLS para auxiliar e ver como o tanstack esta comportando. npm i @tanstack/react-query-devtool
+ 3- MODO DE USO: vamos no componente principal e criamos uma "query", dentro dessa query vamos criar uma funcao onde consulta a api: 
+
+ const query = useQuery({
+    queryKey: ['posts'],
+    queryFn: async () => {
+      const result = await axios.get("https://jsonplaceholder.typicode.com/posts");
+      return result.data;
+    }
+  });
+
+
+4 - Para realizar um teste, executamos uma renderizacao condicional onde usamos o metodo query.isloading, veja:
+
+  return (
+    <div className='container mx-auto'>
+      <h1>Ola Mundo!</h1>
+      {query.isLoading && "Carregando..."}
+    </div>
+  )
+
+
+5 - Para organizar melhor o codigo, se recomenda fazer a chamada da API em um documento distinto e logo em const query por exemplo, em queryFN apenas chamar essa funcao:
+
+const query = useQuery({
+    queryKey: ['posts'],
+    queryFn: getPosts
+  });
+
+//De outro documento
+
+export const getPosts = async () : Promise<Post[]> => {
+    const result = await req.get("/posts");
+    return result.data;
+}
+
+E para ficar mais organizado ainda, se recomenda fazer um HOOK para a funcao useQuery, para nao ficar junto ao componente, ex:
+
+
+export const usePosts = () => {
+    const query = useQuery({ queryKey: ['posts'], queryFn: getPosts });
+    return query;
+
+}
+
+logo no componente principal, apenas realizamos o seguinte:
+
+const posts = usePosts();
